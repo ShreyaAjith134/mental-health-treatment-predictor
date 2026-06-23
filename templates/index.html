@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mental Health Predictor</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 30px 15px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 800px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      margin: 0 auto;
+    }
+    h1 { text-align: center; color: #4a3f8f; font-size: 1.7rem; margin-bottom: 6px; }
+    .subtitle { text-align: center; color: #888; font-size: 0.9rem; margin-bottom: 30px; }
+    .section-title {
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: #764ba2; margin: 28px 0 14px;
+      border-bottom: 2px solid #f0ebff; padding-bottom: 6px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    label { font-size: 0.83rem; font-weight: 600; color: #444; }
+    select, input[type="number"] {
+      padding: 9px 12px;
+      border: 1.5px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      color: #333;
+      background: #fafafa;
+      transition: border 0.2s;
+      width: 100%;
+    }
+    select:focus, input:focus {
+      outline: none;
+      border-color: #764ba2;
+      background: white;
+    }
+    .submit-wrap {
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 2px solid #f0ebff;
+    }
+    button {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    #result {
+      margin-top: 22px;
+      padding: 18px 20px;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      text-align: center;
+      display: none;
+    }
+    .result-warning { background: #fff3cd; color: #856404; border: 1.5px solid #ffc107; }
+    .result-ok      { background: #d1f5e0; color: #155724; border: 1.5px solid #28a745; }
+    .result-error   { background: #fde8e8; color: #842029; border: 1.5px solid #dc3545; }
+    .spinner { display: none; text-align: center; margin-top: 16px; color: #764ba2; font-size: 0.9rem; }
+    @media (max-width: 560px) {
+      .grid { grid-template-columns: 1fr; }
+      .card { padding: 20px 14px; }
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>🧠 Mental Health Predictor</h1>
+  <p class="subtitle">ML-based workplace mental health analysis — OSMI Tech Survey</p>
+
+  <form id="predictForm">
+
+    <!-- ── DEMOGRAPHICS ── -->
+    <div class="section-title">👤 Demographics</div>
+    <div class="grid">
+      <div class="form-group">
+        <label>Age</label>
+        <input type="number" name="Age" min="18" max="65" placeholder="e.g. 28" required />
+      </div>
+      <div class="form-group">
+        <label>Gender</label>
+        <select name="Gender">
+          <option value="1">Male</option>
+          <option value="0">Female</option>
+          <option value="2">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ── WORK ENVIRONMENT ── -->
+    <div class="section-title">🏢 Work Environment</div>
+    <div class="grid">
+      <div class="form-group">
+        <label>Self Employed?</label>
+        <select name="self_employed">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Family History of Mental Illness?</label>
+        <select name="family_history">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Work Interferes with Mental Health?</label>
+        <select name="work_interfere">
+          <option value="0">Never</option>
+          <option value="1">Rarely</option>
+          <option value="2">Sometimes</option>
+          <option value="3">Often</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Company Size (no. of employees)</label>
+        <select name="no_employees">
+          <option value="0">1–5</option>
+          <option value="1">6–25</option>
+          <option value="2">26–100</option>
+          <option value="3">100–500</option>
+          <option value="4">500–1000</option>
+          <option value="5">More than 1000</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Remote Work?</label>
+        <select name="remote_work">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tech Company?</label>
+        <select name="tech_company">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ── MENTAL HEALTH SUPPORT ── -->
+    <div class="section-title">🧬 Mental Health Support</div>
+    <div class="grid">
+      <div class="form-group">
+        <label>Benefits Provided by Employer?</label>
+        <select name="benefits">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+          <option value="2">Don't know</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Care Options Available?</label>
+        <select name="care_options">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+          <option value="2">Not sure</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Wellness Program at Work?</label>
+        <select name="wellness_program">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+          <option value="2">Don't know</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Employer Provides Seek-Help Resources?</label>
+        <select name="seek_help">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+          <option value="2">Don't know</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Anonymity Protected?</label>
+        <select name="anonymity">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+          <option value="2">Don't know</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Easy to Take Mental Health Leave?</label>
+        <select name="leave">
+          <option value="2">Somewhat easy</option>
+          <option value="1">Very easy</option>
+          <option value="3">Somewhat difficult</option>
+          <option value="0">Very difficult</option>
+          <option value="4">Don't know</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ── WORKPLACE ATTITUDES ── -->
+    <div class="section-title">💼 Workplace Attitudes</div>
+    <div class="grid">
+      <div class="form-group">
+        <label>MH Consequence if Discussed with Employer?</label>
+        <select name="mental_health_consequence">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+          <option value="2">Maybe</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Physical Health Consequence at Work?</label>
+        <select name="phys_health_consequence">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+          <option value="2">Maybe</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Coworkers Supportive?</label>
+        <select name="coworkers">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+          <option value="2">Some of them</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Supervisor Supportive?</label>
+        <select name="supervisor">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+          <option value="2">Some of them</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Willing to Discuss MH in Job Interview?</label>
+        <select name="mental_health_interview">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+          <option value="2">Maybe</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Willing to Discuss Physical Health in Interview?</label>
+        <select name="phys_health_interview">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+          <option value="2">Maybe</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Employer Treats Mental &amp; Physical Health Equally?</label>
+        <select name="mental_vs_physical">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+          <option value="2">Don't know</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Observed Negative MH Consequences at Work?</label>
+        <select name="obs_consequence">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ── SUBMIT ── -->
+    <div class="submit-wrap">
+      <button type="submit" id="submitBtn">🔍 Predict Mental Health Treatment Need</button>
+    </div>
+
+  </form>
+
+  <div class="spinner" id="spinner">⏳ Analyzing your responses...</div>
+  <div id="result"></div>
+
+</div>
+
+<script>
+  document.getElementById('predictForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn       = document.getElementById('submitBtn');
+    const spinner   = document.getElementById('spinner');
+    const resultDiv = document.getElementById('result');
+
+    btn.disabled = true;
+    spinner.style.display = 'block';
+    resultDiv.style.display = 'none';
+
+    try {
+      const response = await fetch('/predict', {
+        method: 'POST',
+        body: new FormData(this)
+      });
+      const data = await response.json();
+      resultDiv.textContent = data.result;
+
+      if (data.result.includes('⚠️')) {
+        resultDiv.className = 'result-warning';
+      } else if (data.result.includes('✅')) {
+        resultDiv.className = 'result-ok';
+      } else {
+        resultDiv.className = 'result-error';
+      }
+      resultDiv.style.display = 'block';
+    } catch (err) {
+      resultDiv.textContent = '❌ Error connecting to server. Make sure Flask is running.';
+      resultDiv.className = 'result-error';
+      resultDiv.style.display = 'block';
+    }
+
+    spinner.style.display = 'none';
+    btn.disabled = false;
+  });
+</script>
+</body>
+</html>
