@@ -140,35 +140,7 @@ The Stacking Ensemble achieved the best overall performance and was selected for
 
 ## Application Screenshots
 
-### Home Page
-
-<p align="center">
-Insert Screenshot Here
-</p>
-
----
-
-### Prediction Result
-
-<p align="center">
-Insert Screenshot Here
-</p>
-
----
-
-### Accuracy Comparison
-
-<p align="center">
-Insert Screenshot Here
-</p>
-
----
-
-### Confusion Matrix
-
-<p align="center">
-Insert Screenshot Here
-</p>
+coming soon
 
 ---
 
